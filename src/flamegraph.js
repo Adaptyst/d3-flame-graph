@@ -262,7 +262,21 @@ export default function () {
         return nodeList
     }
 
-    function update () {
+    function update (onTransitionEndAll) {
+        let scheduledTransitions = 0
+        let doneTransitions = 0
+        let everythingScheduled = false
+
+        const endCallback = function () {
+            doneTransitions++
+
+            if (everythingScheduled && doneTransitions === scheduledTransitions &&
+                onTransitionEndAll !== undefined) {
+                onTransitionEndAll()
+            }
+        }
+
+        let index = 0
         selection.each(function (root) {
             const x = scaleLinear().range([0, w])
             const y = scaleLinear().range([0, c])
@@ -292,25 +306,32 @@ export default function () {
                 svg.attr('height', h)
             }
 
+            scheduledTransitions += g.size()
             g.transition()
                 .duration(transitionDuration)
                 .ease(transitionEase)
                 .attr('transform', function (d) { return 'translate(' + x(d.x0) + ',' + (inverted ? y(d.depth) : (h - y(d.depth) - c)) + ')' })
+                .on('end', endCallback)
 
+            scheduledTransitions += g.select('rect').size()
             g.select('rect')
                 .transition()
                 .duration(transitionDuration)
                 .ease(transitionEase)
                 .attr('width', width)
+                .on('end', endCallback)
 
             const node = g.enter()
                 .append('svg:g')
                 .attr('transform', function (d) { return 'translate(' + x(d.x0) + ',' + (inverted ? y(d.depth) : (h - y(d.depth) - c)) + ')' })
 
-            node.append('svg:rect')
+            const appended = node.append('svg:rect')
+            scheduledTransitions += appended.size()
+            appended
                 .transition()
                 .delay(transitionDuration / 2)
                 .attr('width', width)
+                .on('end', endCallback)
 
             if (!tooltip) { node.append('svg:title') }
 
@@ -334,6 +355,12 @@ export default function () {
                     .text(labelHandler)
             }
 
+            scheduledTransitions += g.select('foreignObject').size()
+
+            if (index === selection.size() - 1) {
+                everythingScheduled = true
+            }
+
             g.select('foreignObject')
                 .attr('width', width)
                 .attr('height', function (d) { return c })
@@ -343,6 +370,7 @@ export default function () {
                 .transition()
                 .delay(transitionDuration)
                 .text(getName)
+                .on('end', endCallback)
 
             g.on('click', (_, d) => { zoom(d) })
 
@@ -359,6 +387,8 @@ export default function () {
                 if (tooltip) tooltip.hide()
                 detailsHandler(null)
             })
+
+            index++
         })
     }
 
@@ -726,13 +756,13 @@ export default function () {
         return chart
     }
 
-    chart.update = function (data) {
+    chart.update = function (data, onTransitionEndAll) {
         if (!selection) { return chart }
         if (data) {
             selection.datum(data)
             processData()
         }
-        update()
+        update(onTransitionEndAll)
         return chart
     }
 
