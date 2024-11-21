@@ -20,6 +20,7 @@ export default function () {
     let sort = false
     let inverted = false // invert the graph direction
     let clickHandler = null
+    let contextMenuHandler = null
     let hoverHandler = null
     let minFrameSize = 0
     let detailsElement = null
@@ -373,6 +374,12 @@ export default function () {
                 .on('end', endCallback)
 
             g.on('click', (_, d) => { zoom(d) })
+            g.on('contextmenu', (e, d) => {
+                if (typeof contextMenuHandler === 'function') {
+                    e.preventDefault()
+                    contextMenuHandler(d)
+                }
+            })
 
             g.exit()
                 .remove()
@@ -715,6 +722,14 @@ export default function () {
             return clickHandler
         }
         clickHandler = _
+        return chart
+    }
+
+    chart.onContextMenu = function (_) {
+        if (!arguments.length) {
+            return contextMenuHandler
+        }
+        contextMenuHandler = _
         return chart
     }
 
