@@ -377,7 +377,7 @@ export default function () {
             g.on('contextmenu', (e, d) => {
                 if (typeof contextMenuHandler === 'function') {
                     e.preventDefault()
-                    contextMenuHandler(d)
+                    contextMenuHandler(e, d)
                 }
             })
 
