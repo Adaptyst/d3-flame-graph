@@ -1,5 +1,7 @@
 # d3-flame-graph
 
+**This is a CERN fork for the purpose of the Adaptyst development.**
+
 A D3.js plugin that produces flame graphs from hierarchical data.
 
 [![Flame Graph Example](https://media.giphy.com/media/l41JMjBaxrZw1bqpi/giphy.gif)](http://spiermar.github.io/d3-flame-graph/)
@@ -427,6 +429,7 @@ It contains a placeholder `/** @flamegraph_params **/` which needs to be replace
 ## License
 
 Copyright 2018 Martin Spier. All Rights Reserved.
+Copyright 2025 CERN.
 
 Licensed under the Apache License, Version 2.0 (the “License”); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 
